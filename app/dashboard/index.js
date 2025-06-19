@@ -1,34 +1,31 @@
-// pages/dashboard/index.js
-import { getSession } from 'next-auth/react';
+// app/dashboard/index.js
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '../../pages/api/auth/[...nextauth]';
+import Link from 'next/link';
 
-export async function getServerSideProps(context) {
-  const session = await getSession(context);
-  if (!session) {
-    return {
-      redirect: {
-        destination: '/auth/login',
-        permanent: false,
-      },
-    };
+export default async function DashboardPage() {
+  const session = await getServerSession(authOptions);
+  if (!session || (session.user.role !== 'admin' && session.user.role !== 'corredor')) {
+    // Puedes redirigir con Next.js 13 App Router:
+    // import { redirect } from 'next/navigation';
+    // redirect('/auth/login');
+    return <p className="p-6 text-center">No autorizado. Por favor inicia sesión.</p>;
   }
-  // Opcional: verificar role
-  if (session.user.role !== 'admin' && session.user.role !== 'corredor') {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
-  }
-  return { props: { session } };
-}
-
-export default function DashboardPage({ session }) {
   return (
-    <div>
-      <h1 className="text-primary text-2xl font-bold">Bienvenido, {session.user.name}</h1>
-      {/* Links a gestión de propiedades, etc. */}
+    <div className="container mx-auto px-4 py-6">
+      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+      <ul className="space-y-2">
+        <li>
+          <Link href="/dashboard/propiedades">
+            <a className="text-primary hover:underline">Gestión de Propiedades</a>
+          </Link>
+        </li>
+        <li>
+          <Link href="/dashboard/solicitudes">
+            <a className="text-primary hover:underline">Ver Solicitudes de Visita</a>
+          </Link>
+        </li>
+      </ul>
     </div>
   );
 }
-

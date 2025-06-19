@@ -69,25 +69,20 @@ model Category {
 }
 
 model Property {
-  id           Int       @id @default(autoincrement())
-  title        String
-  description  String
-  price        Float
-  location     String
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  // Relación con categoría
-  categoryId   Int
-  category     Category  @relation(fields: [categoryId], references: [id])
-  // Relación con usuario creador (corredor)
-  creatorId    String?
-  creator      User?     @relation("UserProperties", fields: [creatorId], references: [id])
-  // URL principal de imagen
-  imageUrl     String?
-  // Opcional: si permites varias imágenes, podrías usar JSON o tabla aparte. Ejemplo JSON:
-  otherImageUrls String[]? @db.String[]   // Postgres array de texto
-  // Relación con solicitudes/inquiries
-  inquiries    Inquiry[]
+  id             Int       @id @default(autoincrement())
+  title          String
+  description    String
+  price          Float
+  location       String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  categoryId     Int
+  category       Category  @relation(fields: [categoryId], references: [id])
+  creatorId      String?
+  creator        User?     @relation("UserProperties", fields: [creatorId], references: [id])
+  imageUrl       String?
+  otherImageUrls String[]   @default([])  // Postgres text[] con valor por defecto vacío
+  inquiries      Inquiry[]
 }
 
 model Inquiry {
