@@ -1,10 +1,8 @@
 // app/api/propiedades/[id]/route.js
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
-
-const prisma = new PrismaClient();
 
 export async function GET(request, { params }) {
   const { id } = params;
@@ -18,7 +16,7 @@ export async function GET(request, { params }) {
     }
     return NextResponse.json(prop);
   } catch (e) {
-    console.error(e);
+    console.error('propiedades/[id] GET error:', e);
     return NextResponse.json({ error: 'Error al obtener propiedad' }, { status: 500 });
   }
 }
@@ -34,10 +32,16 @@ export async function PUT(request, { params }) {
   if (!existing) {
     return NextResponse.json({ error: 'Propiedad no encontrada' }, { status: 404 });
   }
-  if (session.user.role !== 'admin' && session.user.id !== existing.creatorId) {
+  const role = session.user.role;
+  if (role !== 'admin' && session.user.id !== existing.creatorId) {
     return NextResponse.json({ error: 'Permiso denegado' }, { status: 403 });
   }
-  const body = await request.json();
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 });
+  }
   const { title, description, price, location, categoryId, imageUrl } = body;
   try {
     const updated = await prisma.property.update({
@@ -45,15 +49,15 @@ export async function PUT(request, { params }) {
       data: {
         title: title ?? existing.title,
         description: description ?? existing.description,
-        price: price ? parseFloat(price) : existing.price,
+        price: price !== undefined ? parseFloat(price) : existing.price,
         location: location ?? existing.location,
-        categoryId: categoryId ? parseInt(categoryId, 10) : existing.categoryId,
+        categoryId: categoryId !== undefined ? parseInt(categoryId, 10) : existing.categoryId,
         imageUrl: imageUrl !== undefined ? imageUrl : existing.imageUrl,
       },
     });
     return NextResponse.json(updated);
   } catch (e) {
-    console.error(e);
+    console.error('propiedades/[id] PUT error:', e);
     return NextResponse.json({ error: 'Error al actualizar propiedad' }, { status: 500 });
   }
 }
@@ -69,14 +73,16 @@ export async function DELETE(request, { params }) {
   if (!existing) {
     return NextResponse.json({ error: 'Propiedad no encontrada' }, { status: 404 });
   }
-  if (session.user.role !== 'admin' && session.user.id !== existing.creatorId) {
+  const role = session.user.role;
+  if (role !== 'admin' && session.user.id !== existing.creatorId) {
     return NextResponse.json({ error: 'Permiso denegado' }, { status: 403 });
   }
   try {
     await prisma.property.delete({ where: { id: propId } });
-    return NextResponse.json({}, { status: 204 });
+    // Devolvemos 204 No Content
+    return new Response(null, { status: 204 });
   } catch (e) {
-    console.error(e);
+    console.error('propiedades/[id] DELETE error:', e);
     return NextResponse.json({ error: 'Error al eliminar propiedad' }, { status: 500 });
   }
 }
