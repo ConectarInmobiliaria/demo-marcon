@@ -1,41 +1,61 @@
 // app/propiedades/[id]/page.js
-import { fetchPropiedadById } from '@/lib/api';
+import Image from 'next/image';
+import { prisma } from '@/lib/prisma';
+import PropertyInquiryForm from '@/components/PropertyInquiryForm';
+
+export const dynamic = 'force-dynamic'; // para siempre dados datos en BD
+
 export default async function PropiedadPage({ params }) {
-  const id = params.id;
-  const prop = await fetchPropiedadById(id);
-  if (!prop) return <p className="container py-5">Propiedad no encontrada.</p>;
+  const id = parseInt(params.id, 10);
+  let prop = null;
+  try {
+    prop = await prisma.property.findUnique({
+      where: { id },
+      include: { category: true, creator: true },
+    });
+  } catch (err) {
+    console.error('Error en PropiedadPage prisma.property.findUnique:', err);
+  }
+  if (!prop) {
+    return (
+      <section className="container py-5">
+        <p>Propiedad no encontrada.</p>
+      </section>
+    );
+  }
   return (
     <section className="container py-5">
       <div className="row">
         <div className="col-lg-8">
-          <img src={prop.imagenUrl} className="img-fluid rounded mb-4" alt={prop.titulo} />
-          <h2>{prop.titulo}</h2>
-          <p>{prop.descripcion}</p>
+          {prop.imageUrl ? (
+            <Image
+              src={prop.imageUrl}
+              alt={prop.title}
+              width={800}
+              height={500}
+              className="img-fluid rounded mb-4"
+              style={{ objectFit: 'cover' }}
+            />
+          ) : (
+            <div className="bg-secondary text-white d-flex align-items-center justify-content-center rounded mb-4" style={{ height: '500px' }}>
+              Sin imagen
+            </div>
+          )}
+          <h2>{prop.title}</h2>
+          <p>{prop.description}</p>
           <ul className="list-group list-group-flush mb-4">
-            <li className="list-group-item"><strong>Precio:</strong> ${prop.precio}</li>
-            <li className="list-group-item"><strong>Ubicación:</strong> {prop.ubicacion}</li>
-            {/* Otros detalles */}
+            <li className="list-group-item"><strong>Precio:</strong> ${prop.price}</li>
+            <li className="list-group-item"><strong>Ubicación:</strong> {prop.location}</li>
+            {prop.category && (
+              <li className="list-group-item"><strong>Categoría:</strong> {prop.category.name}</li>
+            )}
+            <li className="list-group-item"><strong>Publicado:</strong> {new Date(prop.createdAt).toLocaleDateString()}</li>
+            {/* Otros detalles si existen */}
           </ul>
         </div>
         <div className="col-lg-4">
-          {/* Formulario de consulta o reserva */}
           <h5>Contactar al agente</h5>
-          <form action={`/api/inquiries`} method="post">
-            <input type="hidden" name="propiedadId" value={id} />
-            <div className="mb-3">
-              <label htmlFor="nombre" className="form-label">Nombre</label>
-              <input type="text" className="form-control" id="nombre" name="nombre" required />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="email" className="form-label">Email</label>
-              <input type="email" className="form-control" id="email" name="email" required />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="mensaje" className="form-label">Mensaje</label>
-              <textarea className="form-control" id="mensaje" name="mensaje" rows="3" required></textarea>
-            </div>
-            <button type="submit" className="btn btn-primary">Enviar consulta</button>
-          </form>
+          <PropertyInquiryForm propertyId={id} />
         </div>
       </div>
     </section>

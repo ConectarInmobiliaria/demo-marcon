@@ -1,6 +1,7 @@
 // app/page.js
 import Hero from '../components/Hero';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function HomePage() {
   return (
@@ -27,7 +28,7 @@ export default function HomePage() {
           {/* Ejemplo estático */}
           <div className="col-md-4 mb-4">
             <div className="card h-100">
-              <img src="/propiedad-ejemplo.jpg" className="card-img-top" alt="Propiedad" />
+              <Image src="/propiedad-ejemplo.jpg" className="card-img-top" alt="Propiedad" width={400} height={300} />
               <div className="card-body d-flex flex-column">
                 <h5 className="card-title">Casa en el centro</h5>
                 <p className="card-text">Hermosa casa céntrica con 3 dormitorios.</p>
