@@ -5,13 +5,13 @@ const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function main() {
-  // Reemplaza con tus credenciales deseadas:
+  // Credenciales deseadas para seed:
   const adminEmail = 'admin@marcon.com';
   const adminPassword = 'Admin123!'; // en entorno real, gestiona con cuidado
   const corredorEmail = 'corredor@marcon.com';
   const corredorPassword = 'Corredor123!';
 
-  // Verificar si ya existen para no duplicar
+  // Usuario ADMIN
   let adminUser = await prisma.user.findUnique({ where: { email: adminEmail } });
   if (!adminUser) {
     const hashed = await bcrypt.hash(adminPassword, 10);
@@ -20,14 +20,23 @@ async function main() {
         name: 'Administrador',
         email: adminEmail,
         passwordHash: hashed,
-        role: 'admin',
+        role: 'ADMIN',
       },
     });
     console.log('Usuario admin creado:', adminEmail);
   } else {
     console.log('Usuario admin ya existe:', adminEmail);
+    // Si existía pero rol distinto, opcionalmente actualizar:
+    if (adminUser.role !== 'ADMIN') {
+      await prisma.user.update({
+        where: { email: adminEmail },
+        data: { role: 'ADMIN' },
+      });
+      console.log('Rol de usuario admin corregido a ADMIN');
+    }
   }
 
+  // Usuario CORREDOR de ejemplo
   let corredorUser = await prisma.user.findUnique({ where: { email: corredorEmail } });
   if (!corredorUser) {
     const hashed2 = await bcrypt.hash(corredorPassword, 10);
@@ -36,12 +45,19 @@ async function main() {
         name: 'Corredor Ejemplo',
         email: corredorEmail,
         passwordHash: hashed2,
-        role: 'corredor',
+        role: 'CORREDOR',
       },
     });
     console.log('Usuario corredor creado:', corredorEmail);
   } else {
     console.log('Usuario corredor ya existe:', corredorEmail);
+    if (corredorUser.role !== 'CORREDOR') {
+      await prisma.user.update({
+        where: { email: corredorEmail },
+        data: { role: 'CORREDOR' },
+      });
+      console.log('Rol de usuario corredor corregido a CORREDOR');
+    }
   }
 
   // Crear categorías de ejemplo:
@@ -54,11 +70,11 @@ async function main() {
     }
   }
 
-  // Opcional: crear una propiedad de ejemplo
+  // Propiedad de ejemplo
   const propTitle = 'Casa de ejemplo';
   const existsProp = await prisma.property.findFirst({ where: { title: propTitle } });
   if (!existsProp) {
-    // Necesitas un categoryId y creatorId; asumimos la primera categoría y el corredor de ejemplo.
+    // Tomar primera categoría y corredor de ejemplo
     const firstCategory = await prisma.category.findFirst();
     const corredor = await prisma.user.findUnique({ where: { email: corredorEmail } });
     if (firstCategory && corredor) {
@@ -89,4 +105,3 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
-

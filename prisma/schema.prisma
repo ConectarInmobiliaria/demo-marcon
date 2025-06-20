@@ -1,4 +1,5 @@
 // prisma/schema.prisma
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -11,16 +12,18 @@ generator client {
 model User {
   id             String    @id @default(cuid())
   name           String?
-  email          String?   @unique
+  email          String    @unique
   emailVerified  DateTime?
   image          String?
-  passwordHash   String?   // para CredentialsProvider si lo usas; puedes obviar y usar solo OAuth
-  role           String    @default("corredor") // "admin" o "corredor" (realtor) o "cliente" si deseas
+  passwordHash   String?   // para CredentialsProvider si lo usas; null si creado vía Google
+  role           String    @default("INQUILINO") // valores: "ADMIN", "CORREDOR", "PROPIETARIO", "INQUILINO"
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
   accounts       Account[]
   sessions       Session[]
-  inquiries      Inquiry[] // solicitudes enviadas por este usuario (opcional)
-  // Si deseas relacionar usuario con propiedades que administra:
-  properties     Property[] @relation("UserProperties")  // si quieres guardar creador de propiedad
+  inquiries      Inquiry[] // solicitudes enviadas por este usuario
+  properties     Property[] @relation("UserProperties")  // propiedades creadas/administradas
 }
 
 model Account {
@@ -62,9 +65,8 @@ model VerificationToken {
 }
 
 model Category {
-  id    Int      @id @default(autoincrement())
-  name  String   @unique
-  // Relación con propiedades
+  id         Int        @id @default(autoincrement())
+  name       String     @unique
   properties Property[]
 }
 
