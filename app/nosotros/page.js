@@ -166,7 +166,7 @@ export default function NosotrosPage() {
           <div className="row align-items-center gx-4">
             <div className="col-md-4 text-center mb-4 mb-md-0">
               <Image
-                src="/mirta.jpg"
+                src="/mirta.png"
                 alt="Mirta Marcon"
                 width={300}
                 height={300}
