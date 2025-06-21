@@ -8,7 +8,7 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
 export default function Navbar() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(true);
   const toggle = () => setCollapsed(prev => !prev);
@@ -51,10 +51,10 @@ export default function Navbar() {
             </li>
           </ul>
           <ul className="navbar-nav mb-2 mb-lg-0">
-            {session ? (
+            {status === 'authenticated' ? (
               <li className="nav-item dropdown">
                 <a className="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  {session.user.name || 'Mi cuenta'}
+                  {(session && session.user && session.user.name) ? session.user.name : 'Mi cuenta'}
                 </a>
                 <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                   <li>
@@ -68,7 +68,7 @@ export default function Navbar() {
               </li>
             ) : (
               <li className="nav-item">
-                <Link href="/auth/login" className="btn btn-primary">Corredores</Link>
+                <Link href="/auth/login" className="btn btn-primary">Acceder</Link>
               </li>
             )}
           </ul>
@@ -77,3 +77,4 @@ export default function Navbar() {
     </nav>
   );
 }
+

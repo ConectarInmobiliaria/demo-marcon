@@ -1,5 +1,3 @@
-// prisma/schema.prisma
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -15,15 +13,15 @@ model User {
   email          String    @unique
   emailVerified  DateTime?
   image          String?
-  passwordHash   String?   // para CredentialsProvider si lo usas; null si creado vía Google
-  role           String    @default("INQUILINO") // valores: "ADMIN", "CORREDOR", "PROPIETARIO", "INQUILINO"
+  passwordHash   String?   
+  role           String    @default("INQUILINO")
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
   accounts       Account[]
   sessions       Session[]
-  inquiries      Inquiry[] // solicitudes enviadas por este usuario
-  properties     Property[] @relation("UserProperties")  // propiedades creadas/administradas
+  inquiries      Inquiry[]
+  properties     Property[] @relation("UserProperties")
 }
 
 model Account {
@@ -54,6 +52,8 @@ model Session {
   expires      DateTime
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
 }
 
 model VerificationToken {
@@ -83,7 +83,7 @@ model Property {
   creatorId      String?
   creator        User?     @relation("UserProperties", fields: [creatorId], references: [id])
   imageUrl       String?
-  otherImageUrls String[]   @default([])  // Postgres text[] con valor por defecto vacío
+  otherImageUrls String[]   @default([])
   inquiries      Inquiry[]
 }
 
@@ -91,9 +91,9 @@ model Inquiry {
   id          Int      @id @default(autoincrement())
   propertyId  Int
   property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  userId      String?  // si usuario logueado
+  userId      String?
   user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  name        String   // nombre de quien solicita (si no logueado)
+  name        String
   email       String
   phone       String?
   message     String?

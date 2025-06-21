@@ -7,9 +7,8 @@ export default function Footer() {
     <footer className="bg-primary text-white py-4 mt-auto">
       <div className="container text-center d-flex flex-column align-items-center">
         <p className="mb-2">© {new Date().getFullYear()} Inmobiliaria Marcon. Todos los derechos reservados.</p>
-        <Link href="https://your-website.com" className="text-white text-decoration-none d-inline-flex align-items-center justify-content-center">
-          <span>By: </span>
-          <Image src="/firma.png" alt="Firma" width={60} height={10} className="me-2" />
+        <Link href="#" className="text-white text-decoration-none d-inline-flex align-items-center justify-content-center">
+          <Image src="/firma.png" alt="Firma" width={60} height={20} className="me-2" />
         </Link>
       </div>
     </footer>

@@ -9,21 +9,19 @@ export async function middleware(req: NextRequest) {
   if (pathname.startsWith('/dashboard')) {
     const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
     if (!token) {
-      // Redirige a login
-      const signInUrl = new URL('/auth/login', req.url);
-      return NextResponse.redirect(signInUrl);
+      // Redirigir a login con callback
+      const url = req.nextUrl.clone();
+      url.pathname = '/auth/login';
+      url.searchParams.set('callbackUrl', req.nextUrl.pathname);
+      return NextResponse.redirect(url);
     }
-    const role = token.role;
-    if (role !== 'ADMIN' && role !== 'CORREDOR') {
-      // No autorizado
+    const role = (token.role || '').toLowerCase();
+    if (!['admin', 'corredor'].includes(role)) {
       return new NextResponse('Acceso denegado', { status: 403 });
     }
   }
   return NextResponse.next();
 }
 
-// next.config.mjs: si defines matcher, p. ej.:
-export default {
-  // ...
-  // matcher: ['/dashboard/:path*'],
-};
+// No olvides exportar matcher si quieres limitar middleware solo a `/dashboard`
+// Pero aquí filtramos internamente.
