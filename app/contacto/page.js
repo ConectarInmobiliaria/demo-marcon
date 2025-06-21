@@ -1,98 +1,77 @@
 // app/contacto/page.js
-'use client';
+import ContactForm from '@/components/ContactForm';
+import Link from 'next/link';
 
-import { useState } from 'react';
+export const metadata = {
+  title: 'Contacto | Inmobiliaria Marcon',
+  description: 'Contáctanos en Inmobiliaria Marcon. Dirección, teléfono y redes sociales.',
+};
 
 export default function ContactoPage() {
-  const [form, setForm] = useState({ nombre: '', email: '', mensaje: '' });
-  const [enviado, setEnviado] = useState(false);
-
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      if (res.ok) {
-        setEnviado(true);
-        setForm({ nombre: '', email: '', mensaje: '' });
-      } else {
-        console.error('Error al enviar contacto');
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  // URL de embed de Google Maps centrado en San Luis 1663, Posadas
+  const mapSrc =
+    'https://maps.google.com/maps?q=San%20Luis%201663%20Posadas%20Misiones%20Argentina&z=15&output=embed';
 
   return (
     <section className="container py-5">
-      <h1 className="mb-4">Contáctanos</h1>
-      <div className="row">
-        <div className="col-md-6">
-          <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label htmlFor="nombre" className="form-label">Nombre</label>
-              <input
-                type="text"
-                className="form-control"
-                id="nombre"
-                name="nombre"
-                value={form.nombre}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="email" className="form-label">Email</label>
-              <input
-                type="email"
-                className="form-control"
-                id="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="mensaje" className="form-label">Mensaje</label>
-              <textarea
-                className="form-control"
-                id="mensaje"
-                name="mensaje"
-                rows="4"
-                value={form.mensaje}
-                onChange={handleChange}
-                required
-              ></textarea>
-            </div>
-            <button type="submit" className="btn btn-primary">Enviar mensaje</button>
-            {enviado && (
-              <div className="alert alert-success mt-3">
-                ¡Gracias por contactarnos! Te responderemos pronto.
-              </div>
-            )}
-          </form>
-        </div>
-        <div className="col-md-6">
-          <div className="ratio ratio-16x9">
+      <h1 className="mb-4 text-center">Contáctanos</h1>
+      <div className="row gy-4">
+        {/* Columna de información y mapa */}
+        <div className="col-lg-6">
+          <h5>Visítanos</h5>
+          <div className="ratio ratio-16x9 mb-3">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3637.367378659412!2d-65.2088163!3d-24.2638955!3m2!1i1024!2i768!4f13.1"
-              style={{ border: 0 }}
-              allowFullScreen=""
+              src={mapSrc}
+              title="Ubicación Inmobiliaria Marcon"
+              allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              title="Ubicación"
             ></iframe>
           </div>
-          <div className="mt-3">
-            <p><strong>Dirección:</strong> Palpalá, Jujuy - Argentina</p>
-            <p><strong>Email:</strong> ejemplo@inmobiliaria.com</p>
-          </div>
+          <p>
+            <strong>Dirección:</strong> San Luis 1663, N3300 Posadas, Misiones, Argentina
+          </p>
+          <p>
+            <strong>Teléfono:</strong>{' '}
+            <a href="tel:03764424071">0376 442-4071</a>
+          </p>
+          <p>
+            <strong>Redes Sociales:</strong>
+          </p>
+          <p>
+            <a
+              href="https://www.youtube.com/channel/UCHwQO6YQq9iJJGsxbrj2KjQ"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="me-3 text-decoration-none"
+              aria-label="YouTube"
+            >
+              <i className="bi bi-youtube fs-4 text-danger"></i>
+            </a>
+            <a
+              href="https://www.facebook.com/inmobiliariamarcon"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="me-3 text-decoration-none"
+              aria-label="Facebook"
+            >
+              <i className="bi bi-facebook fs-4 text-primary"></i>
+            </a>
+            <a
+              href="https://www.instagram.com/inmobiliariamarcon/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-decoration-none"
+              aria-label="Instagram"
+            >
+              <i className="bi bi-instagram fs-4 text-warning"></i>
+            </a>
+          </p>
+        </div>
+        {/* Columna de formulario */}
+        <div className="col-lg-6">
+          <h5>Envíanos un mensaje</h5>
+          <ContactForm />
         </div>
       </div>
     </section>
