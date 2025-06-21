@@ -26,13 +26,13 @@ body {
 /* Si deseas sobrescribir variables de Bootstrap, necesitarías usar Sass. 
    Con CSS puro, puedes añadir reglas específicas, p.ej.: */
 .btn-primary, .bg-primary {
-  background-color: #6B46C1 !important;
-  border-color: #6B46C1 !important;
+  background-color: #2a1a52 !important;
+  border-color: #2a1a52 !important;
 }
 
 .btn-primary:hover, .btn-primary:focus {
-  background-color: #5939a3;
-  border-color: #5939a3;
+  background-color: #2a1a52;
+  border-color: #2a1a52;
 }
 
 /* Puedes añadir más overrides según tu diseño de marca. */

@@ -18,7 +18,7 @@ export default function HeroClient() {
       />
       <div
         className="position-absolute top-50 start-50 translate-middle text-center text-white px-3"
-        style={{ backgroundColor: 'rgba(0,0,0,0.4)', borderRadius: '8px' }}
+        style={{ backgroundColor: 'rgba(0, 0, 0, 0)', borderRadius: '8px' }}
       >
         <motion.h1
           initial={{ y: 20, opacity: 0 }}
