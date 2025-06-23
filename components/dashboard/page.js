@@ -3,12 +3,12 @@ import DashboardLayout from '@/components/dashboard/Layout';
 import { prisma } from '@/lib/prisma';
 
 export default async function DashboardHome() {
-  // Solo accesible a ADMIN/CORREDOR (middleware)
-  // Fetch de estadísticas desde Prisma
-  const [userCount, propCount, solicitudesCount] = await Promise.all([
+  // Solo ADMIN/CORREDOR ingresan
+  // Estadísticas básicas:
+  const [userCount, propCount, inqCount] = await Promise.all([
     prisma.user.count(),
-    prisma.propiedad.count(),         // asume tabla propiedad
-    prisma.solicitud.count({ where: { estado: 'PENDIENTE' } }), // ejemplo
+    prisma.property.count(),
+    prisma.inquiry.count({ where: {} }),
   ]);
 
   return (
@@ -34,8 +34,8 @@ export default async function DashboardHome() {
         <div className="col-md-4 mb-3">
           <div className="card text-white bg-warning h-100">
             <div className="card-body">
-              <h5 className="card-title">Solicitudes Pendientes</h5>
-              <p className="card-text fs-2">{solicitudesCount}</p>
+              <h5 className="card-title">Solicitudes</h5>
+              <p className="card-text fs-2">{inqCount}</p>
             </div>
           </div>
         </div>

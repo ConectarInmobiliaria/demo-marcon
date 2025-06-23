@@ -1,53 +1,56 @@
-// app/dashboard/page.js
-'use client';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+// app/dashboard/page.js o components/dashboard/page.js según tu estructura
+import DashboardLayout from '@/components/dashboard/Layout';
+import { prisma } from '@/lib/prisma';
 
-export default function DashboardHome() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
+export default async function DashboardHome() {
+  // *ANTES*:
+  // const [userCount, propCount, solicitudesCount] = await Promise.all([
+  //   prisma.user.count(),
+  //   prisma.propiedad.count(),         // <--- aquí falla: no existe modelo "propiedad"
+  //   prisma.solicitud.count({ where: { estado: 'PENDIENTE' } }), // <--- no existe modelo "solicitud" ni campo estado
+  // ]);
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/auth/login?callbackUrl=/dashboard');
-    }
-  }, [status, router]);
+  // *AHORA* corregimos usando los nombres reales de modelos Prisma:
+  // User => usuario
+  // Property => propiedad
+  // Inquiry => solicitud/inquiry
+  // Y dado que Inquiry no tiene campo 'estado', contaremos todas o definiremos otra lógica si quieres filtrar.
 
-  if (status === 'loading') {
-    return <div className="container py-5">Cargando...</div>;
-  }
-  // Ya autenticado
-  const role = session.user.role;
+  const [userCount, propertyCount, inquiryCount] = await Promise.all([
+    prisma.user.count(),
+    prisma.property.count(),
+    prisma.inquiry.count(), // todas las solicitudes
+  ]);
+
   return (
-    <div className="container py-5">
-      <h1>Dashboard</h1>
-      {role === 'admin' && (
-        <div>
-          <h2>Administración</h2>
-          <ul>
-            <li><a href="/dashboard/usuarios" className="btn btn-link">Gestionar Usuarios</a></li>
-            <li><a href="/dashboard/propiedades" className="btn btn-link">Gestionar Propiedades</a></li>
-            <li><a href="/dashboard/solicitudes" className="btn btn-link">Ver Solicitudes</a></li>
-          </ul>
+    <DashboardLayout>
+      <h1 className="mb-4">Panel de Control</h1>
+      <div className="row">
+        <div className="col-md-4 mb-3">
+          <div className="card text-white bg-primary h-100">
+            <div className="card-body">
+              <h5 className="card-title">Usuarios</h5>
+              <p className="card-text fs-2">{userCount}</p>
+            </div>
+          </div>
         </div>
-      )}
-      {role === 'corredor' && (
-        <div>
-          <h2>Panel de Corredor</h2>
-          <ul>
-            <li><a href="/dashboard/propiedades" className="btn btn-link">Mis Propiedades</a></li>
-            <li><a href="/dashboard/propiedades/new" className="btn btn-link">Crear Propiedad</a></li>
-            <li><a href="/dashboard/solicitudes" className="btn btn-link">Solicitudes Recibidas</a></li>
-          </ul>
+        <div className="col-md-4 mb-3">
+          <div className="card text-white bg-success h-100">
+            <div className="card-body">
+              <h5 className="card-title">Propiedades</h5>
+              <p className="card-text fs-2">{propertyCount}</p>
+            </div>
+          </div>
         </div>
-      )}
-      {role === 'cliente' && (
-        <div>
-          <h2>Panel de Cliente</h2>
-          <p>Aquí verás tus consultas, favoritos, etc.</p>
+        <div className="col-md-4 mb-3">
+          <div className="card text-white bg-warning h-100">
+            <div className="card-body">
+              <h5 className="card-title">Consultas / Solicitudes</h5>
+              <p className="card-text fs-2">{inquiryCount}</p>
+            </div>
+          </div>
         </div>
-      )}
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }

@@ -1,10 +1,10 @@
 // app/api/propiedades/route.js
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma'; // import nombrado
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 
-export async function GET(request) {
+export async function GET() {
   try {
     const props = await prisma.property.findMany({
       include: { category: true, creator: true },
@@ -12,28 +12,20 @@ export async function GET(request) {
     });
     return NextResponse.json(props);
   } catch (e) {
-    console.error('propiedades GET error:', e);
+    console.error(e);
     return NextResponse.json({ error: 'Error al listar propiedades' }, { status: 500 });
   }
 }
 
 export async function POST(request) {
   const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
-  }
-  const role = session.user.role;
-  if (!['admin', 'corredor'].includes(role)) {
+  if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  if (!['ADMIN', 'CORREDOR'].includes(session.user.role)) {
     return NextResponse.json({ error: 'Permiso denegado' }, { status: 403 });
   }
-  let body;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: 'JSON inválido' }, { status: 400 });
-  }
+  const body = await request.json();
   const { title, description, price, location, categoryId, imageUrl } = body;
-  if (!title || !description || !price || !location || !categoryId) {
+  if (!title || !description || price == null || !location || !categoryId) {
     return NextResponse.json({ error: 'Faltan datos requeridos' }, { status: 400 });
   }
   try {
@@ -51,7 +43,7 @@ export async function POST(request) {
     });
     return NextResponse.json(newProp, { status: 201 });
   } catch (e) {
-    console.error('propiedades POST error:', e);
+    console.error(e);
     return NextResponse.json({ error: 'Error al crear propiedad' }, { status: 500 });
   }
 }
