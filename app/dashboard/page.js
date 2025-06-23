@@ -1,6 +1,7 @@
 // app/dashboard/page.js o components/dashboard/page.js según tu estructura
 import DashboardLayout from '@/components/dashboard/Layout';
 import { prisma } from '@/lib/prisma';
+export const dynamic = 'force-dynamic';
 
 export default async function DashboardHome() {
   // *ANTES*:
