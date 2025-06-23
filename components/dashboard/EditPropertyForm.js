@@ -1,9 +1,11 @@
 // components/dashboard/EditPropertyForm.js
 'use client';
+
 import { useState, useEffect } from 'react';
 import { supabaseClient } from '@/lib/supabaseClient';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function EditPropertyForm({ property }) {
   const { data: session, status } = useSession();
@@ -135,7 +137,16 @@ export default function EditPropertyForm({ property }) {
         <div className="mb-3">
           <label className="form-label">Imagen actual</label><br />
           {currentImageUrl && typeof currentImageUrl === 'string' && currentImageUrl.trim() !== '' ? (
-            <img src={currentImageUrl} alt={`Imagen de ${title || 'propiedad'}`} style={{ maxWidth: '200px' }} className="mb-2" />
+            // Usamos Next.js Image para optimizar
+            <div style={{ maxWidth: '200px', position: 'relative', height: 'auto' }}>
+              <Image
+                src={currentImageUrl}
+                alt={`Imagen de ${title || 'propiedad'}`}
+                width={200}
+                height={120}
+                style={{ objectFit: 'cover' }}
+              />
+            </div>
           ) : (
             <p className="text-muted">No hay imagen</p>
           )}

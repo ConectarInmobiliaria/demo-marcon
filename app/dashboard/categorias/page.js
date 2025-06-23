@@ -1,14 +1,19 @@
 // app/dashboard/categorias/page.js
-'use client';
-import { prisma } from '@/lib/prisma';
+// Quitar 'use client' para que sea Server Component
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
 export default async function CategoriasPage({ searchParams }) {
   // Paginación opcional; aquí listamos todas si pocas
-  const categories = await prisma.category.findMany({ orderBy: { name: 'asc' } });
+  let categories = [];
+  try {
+    categories = await prisma.category.findMany({ orderBy: { name: 'asc' } });
+  } catch (e) {
+    console.error('Error trayendo categorías en CategoriasPage:', e);
+    // opcional: manejar fallback
+  }
 
   return (
     <div className="container py-5">
