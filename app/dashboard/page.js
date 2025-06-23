@@ -1,27 +1,22 @@
-// app/dashboard/page.js o components/dashboard/page.js según tu estructura
-import DashboardLayout from '@/components/dashboard/Layout';
-import { prisma } from '@/lib/prisma';
+// app/dashboard/page.js
 export const dynamic = 'force-dynamic';
 
+import DashboardLayout from '@/components/dashboard/Layout';
+import { prisma } from '@/lib/prisma';
+
 export default async function DashboardHome() {
-  // *ANTES*:
-  // const [userCount, propCount, solicitudesCount] = await Promise.all([
-  //   prisma.user.count(),
-  //   prisma.propiedad.count(),         // <--- aquí falla: no existe modelo "propiedad"
-  //   prisma.solicitud.count({ where: { estado: 'PENDIENTE' } }), // <--- no existe modelo "solicitud" ni campo estado
-  // ]);
-
-  // *AHORA* corregimos usando los nombres reales de modelos Prisma:
-  // User => usuario
-  // Property => propiedad
-  // Inquiry => solicitud/inquiry
-  // Y dado que Inquiry no tiene campo 'estado', contaremos todas o definiremos otra lógica si quieres filtrar.
-
-  const [userCount, propertyCount, inquiryCount] = await Promise.all([
-    prisma.user.count(),
-    prisma.property.count(),
-    prisma.inquiry.count(), // todas las solicitudes
-  ]);
+  // Ahora esto se ejecuta en request-time, no en build
+  let userCount = 0, propertyCount = 0, inquiryCount = 0;
+  try {
+    [userCount, propertyCount, inquiryCount] = await Promise.all([
+      prisma.user.count(),
+      prisma.property.count(),
+      prisma.inquiry.count(),
+    ]);
+  } catch (e) {
+    console.error('Error conectando a DB en DashboardHome:', e);
+    // Opcional: manejar fallback, p.ej. mostrar mensaje de error en UI
+  }
 
   return (
     <DashboardLayout>
