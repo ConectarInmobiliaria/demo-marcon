@@ -24,7 +24,7 @@ export default function NosotrosPage() {
         {/* Overlay oscuro */}
         <div
           className="position-absolute top-0 start-0 w-100 h-100"
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+          style={{ backgroundColor: 'rgba(49, 49, 49, 0.5)' }}
         />
         <div className="position-relative container h-100 d-flex align-items-center">
           <FadeInHeadingClient
@@ -125,7 +125,7 @@ export default function NosotrosPage() {
       <section
         className="position-relative text-white"
         style={{
-          backgroundImage: "url('/contable-bg.jpg')",
+          backgroundImage: "url('/contable-bg.png')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
@@ -133,7 +133,7 @@ export default function NosotrosPage() {
         {/* Overlay oscuro */}
         <div
           className="position-absolute top-0 start-0 w-100 h-100"
-          style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
+          style={{ backgroundColor: 'rgba(49, 49, 49, 0.6)' }}
         />
         <div className="position-relative container py-5 d-flex align-items-center">
           <FadeInSectionClient delay={0.4}>
