@@ -15,14 +15,14 @@ export default function RootLayout({ children }) {
         {/* Opcional: override de variables Bootstrap */}
         <style>{`
           :root {
-            --bs-primary: #6B46C1;
+            --bs-primary: #3B0747;
             --bs-secondary: #ECC94B;
           }
         `}</style>
       </head>
       <body className="d-flex flex-column min-vh-100">
         <NextAuthProvider>
-          <Navbar />
+          <Navar />
           <main className="flex-fill">{children}</main>
           <Footer />
           <ChatbotWidget />

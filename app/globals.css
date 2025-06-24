@@ -26,13 +26,13 @@ body {
 /* Si deseas sobrescribir variables de Bootstrap, necesitarías usar Sass. 
    Con CSS puro, puedes añadir reglas específicas, p.ej.: */
 .btn-primary, .bg-primary {
-  background-color: #2a1a52 !important;
-  border-color: #2a1a52 !important;
+  background-color: #3B0747 !important;
+  border-color: #3B0747 !important;
 }
 
 .btn-primary:hover, .btn-primary:focus {
-  background-color: #2a1a52;
-  border-color: #2a1a52;
+  background-color: #3B0747;
+  border-color: #3B0747;
 }
 .perfil-mirta {
   border: 6px solid #bfa46d; /* Color dorado, podés cambiarlo */
