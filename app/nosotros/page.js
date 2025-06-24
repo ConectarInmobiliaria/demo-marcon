@@ -165,13 +165,13 @@ export default function NosotrosPage() {
         <FadeInSectionClient delay={0.6}>
           <div className="row align-items-center gx-4">
             <div className="col-md-4 text-center mb-4 mb-md-0">
-              <Image
-                src="/mirta.png"
-                alt="Mirta Marcon"
-                width={300}
-                height={300}
-                className="rounded-circle img-fluid shadow"
-              />
+             <Image
+  src="/mirta.png"
+  alt="Mirta Marcon"
+  width={300}
+  height={300}
+  className="rounded-circle img-fluid shadow perfil-mirta"
+/>
             </div>
             <div className="col-md-8">
               <p className="lead">

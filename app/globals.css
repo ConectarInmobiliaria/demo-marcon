@@ -34,5 +34,9 @@ body {
   background-color: #2a1a52;
   border-color: #2a1a52;
 }
-
+.perfil-mirta {
+  border: 6px solid #bfa46d; /* Color dorado, podés cambiarlo */
+  box-shadow: 0 0 24px rgba(0,0,0,0.15);
+  padding: 4px; /* Opcional, para separar el borde de la imagen */
+}
 /* Puedes añadir más overrides según tu diseño de marca. */
