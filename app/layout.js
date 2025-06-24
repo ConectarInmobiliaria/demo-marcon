@@ -22,7 +22,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className="d-flex flex-column min-vh-100">
         <NextAuthProvider>
-          <Navar />
+          <Navbar />
           <main className="flex-fill">{children}</main>
           <Footer />
           <ChatbotWidget />
