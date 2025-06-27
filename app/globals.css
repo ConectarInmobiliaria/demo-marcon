@@ -35,7 +35,7 @@ body {
   border-color: #3B0747;
 }
 .perfil-mirta {
-  border: 6px solid #bfa46d; /* Color dorado, podés cambiarlo */
+  border: 6px solid #3B0747; /* Color dorado, podés cambiarlo */
   box-shadow: 0 0 24px rgba(0,0,0,0.15);
   padding: 4px; /* Opcional, para separar el borde de la imagen */
 }

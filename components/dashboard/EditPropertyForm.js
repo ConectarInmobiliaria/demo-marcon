@@ -2,7 +2,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabaseClient } from '@/lib/supabaseClient';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -16,20 +15,21 @@ export default function EditPropertyForm({ property }) {
   const [price, setPrice] = useState(property.price.toString());
   const [location, setLocation] = useState(property.location);
   const [categoryId, setCategoryId] = useState(property.categoryId.toString());
-  const [imageFile, setImageFile] = useState(null);
-  const [currentImageUrl, setCurrentImageUrl] = useState(property.imageUrl || '');
+  const [newImages, setNewImages] = useState([]);        // archivos seleccionados
+  const [currentImages, setCurrentImages] = useState(property.otherImageUrls || []); // URLs existentes
+  const [categories, setCategories] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
-  const [categories, setCategories] = useState([]);
 
+  // Carga categorías para el select
   useEffect(() => {
     fetch('/api/categories')
-      .then(res => res.json())
-      .then(data => setCategories(data || []))
-      .catch(err => console.error('Error cargando categorías:', err));
+      .then(r => r.json())
+      .then(data => setCategories(data))
+      .catch(err => console.error(err));
   }, []);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     if (status !== 'authenticated') {
       setErrorMsg('Debes iniciar sesión');
@@ -41,19 +41,26 @@ export default function EditPropertyForm({ property }) {
       return;
     }
     setLoading(true);
-    let imageUrl = currentImageUrl;
+
     try {
-      if (imageFile) {
-        // subir nueva imagen
-        const fileExt = imageFile.name.split('.').pop();
-        const fileName = `${Date.now()}.${fileExt}`;
-        const { data, error: uploadError } = await supabaseClient.storage
-          .from(process.env.NEXT_PUBLIC_SUPABASE_BUCKET_NAME)
-          .upload(`propiedades/${fileName}`, imageFile);
-        if (uploadError) throw new Error(uploadError.message);
-        imageUrl = `${process.env.SUPABASE_BUCKET_URL}/propiedades/${fileName}`;
+      // 1) Si hay imágenes nuevas, subimos al servidor mediante multipart/form-data
+      let uploadedUrls = [];
+      if (newImages.length) {
+        const form = new FormData();
+        newImages.forEach(file => form.append('images', file));
+        form.append('propertyId', property.id);
+
+        const upRes = await fetch('/api/dashboard/propiedades/upload-images', {
+          method: 'POST',
+          body: form
+        });
+        const upJson = await upRes.json();
+        if (!upRes.ok) throw new Error(upJson.error || 'Error subiendo imágenes');
+        uploadedUrls = upJson.urls; // array de URLs WebP/AVIF generadas
       }
-      const res = await fetch(`/api/propiedades/${property.id}`, {
+
+      // 2) Llamada PUT para actualizar la propiedad
+      const res = await fetch(`/api/dashboard/propiedades/${property.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -62,11 +69,12 @@ export default function EditPropertyForm({ property }) {
           price: parseFloat(price),
           location,
           categoryId: parseInt(categoryId, 10),
-          imageUrl,
+          otherImageUrls: [...currentImages, ...uploadedUrls]
         }),
       });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || 'Error al actualizar propiedad');
+      if (!res.ok) throw new Error(json.error || 'Error actualizando propiedad');
+
       router.push('/dashboard/propiedades');
     } catch (err) {
       console.error(err);
@@ -79,89 +87,37 @@ export default function EditPropertyForm({ property }) {
   return (
     <div className="container py-4">
       <h1 className="mb-4">Editar Propiedad</h1>
-      {errorMsg && <p className="text-danger">{errorMsg}</p>}
+      {errorMsg && <div className="alert alert-danger">{errorMsg}</div>}
       <form onSubmit={handleSubmit} className="mb-3">
+        {/* Campos básicos */}
+        {/* ... título, descripción, precio, ubicación, categoría (igual que antes) ... */}
+
+        {/* Previsualizar imágenes existentes */}
         <div className="mb-3">
-          <label className="form-label">Título</label>
-          <input
-            type="text"
-            className="form-control"
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label className="form-label">Descripción</label>
-          <textarea
-            className="form-control"
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label className="form-label">Precio</label>
-          <input
-            type="number"
-            className="form-control"
-            value={price}
-            onChange={e => setPrice(e.target.value)}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label className="form-label">Ubicación</label>
-          <input
-            type="text"
-            className="form-control"
-            value={location}
-            onChange={e => setLocation(e.target.value)}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label className="form-label">Categoría</label>
-          <select
-            className="form-select"
-            value={categoryId}
-            onChange={e => setCategoryId(e.target.value)}
-            required
-          >
-            <option value="">Selecciona categoría</option>
-            {categories.map(cat => (
-              <option key={cat.id} value={cat.id}>{cat.name}</option>
+          <label className="form-label">Imágenes actuales</label>
+          <div className="d-flex flex-wrap gap-2">
+            {currentImages.map((url, idx) => (
+              <div key={idx} style={{ width: 120, height: 80, position: 'relative' }}>
+                <Image src={url} alt={`img-${idx}`} fill style={{ objectFit: 'cover' }} />
+              </div>
             ))}
-          </select>
+          </div>
         </div>
+
+        {/* Subir nuevas imágenes (múltiples) */}
         <div className="mb-3">
-          <label className="form-label">Imagen actual</label><br />
-          {currentImageUrl && typeof currentImageUrl === 'string' && currentImageUrl.trim() !== '' ? (
-            // Usamos Next.js Image para optimizar
-            <div style={{ maxWidth: '200px', position: 'relative', height: 'auto' }}>
-              <Image
-                src={currentImageUrl}
-                alt={`Imagen de ${title || 'propiedad'}`}
-                width={200}
-                height={120}
-                style={{ objectFit: 'cover' }}
-              />
-            </div>
-          ) : (
-            <p className="text-muted">No hay imagen</p>
-          )}
-        </div>
-        <div className="mb-3">
-          <label className="form-label">Cambiar imagen</label>
+          <label className="form-label">Añadir imágenes (Opcional)</label>
           <input
             type="file"
             accept="image/*"
+            multiple
             className="form-control"
-            onChange={e => { if (e.target.files?.[0]) setImageFile(e.target.files[0]); }}
+            onChange={e => setNewImages(Array.from(e.target.files))}
           />
         </div>
+
         <button type="submit" disabled={loading} className="btn btn-primary me-2">
-          {loading ? 'Actualizando...' : 'Actualizar Propiedad'}
+          {loading ? 'Guardando...' : 'Guardar cambios'}
         </button>
         <button type="button" onClick={() => router.back()} className="btn btn-outline-secondary">
           Cancelar

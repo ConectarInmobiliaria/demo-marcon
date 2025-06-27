@@ -1,5 +1,5 @@
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -83,7 +83,8 @@ model Property {
   creatorId      String?
   creator        User?     @relation("UserProperties", fields: [creatorId], references: [id])
   imageUrl       String?
-  otherImageUrls String[]   @default([])
+  // MySQL no soporta arrays directos; usamos Json para array de URLs adicionales:
+  otherImageUrls Json?     @default("[]")
   inquiries      Inquiry[]
 }
 
@@ -99,3 +100,4 @@ model Inquiry {
   message     String?
   createdAt   DateTime @default(now())
 }
+
