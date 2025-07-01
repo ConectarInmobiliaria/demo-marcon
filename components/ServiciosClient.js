@@ -58,13 +58,27 @@ const servicios = [
 export default function ServiciosClient() {
   return (
     <div>
-      {/* Encabezado */}
+      {/* Encabezado General */}
       <section className="container py-5">
-        <FadeInHeadingClient as="h1" className="mb-4 text-center text-primary">
+        <FadeInHeadingClient
+          as="h1"
+          className="mb-4 text-center fw-bold"
+          style={{ position: 'relative', fontSize: '2.5rem' }}
+        >
           Servicios
+          <span
+            style={{
+              display: 'block',
+              width: '80px',
+              height: '4px',
+              background: '#6e4bb7', // lila institucional
+              margin: '8px auto 0',
+              borderRadius: '2px',
+            }}
+          />
         </FadeInHeadingClient>
         <FadeInSectionClient>
-          <p className="text-center mx-auto" style={{ maxWidth: '800px' }}>
+          <p className="text-center mx-auto" style={{ maxWidth: '800px', fontSize: '1.1rem' }}>
             Ofrecemos servicios integrales: tasación de inmuebles, venta y alquiler,
             administración de propiedades, asesoría legal, búsqueda personalizada
             y gestión contable.
@@ -72,31 +86,19 @@ export default function ServiciosClient() {
         </FadeInSectionClient>
       </section>
 
-      {/* Listado de servicios */}
+      {/* Secciones individuales */}
       {servicios.map((srv, idx) => {
         const isEven = idx % 2 === 0;
         return (
           <section key={srv.key} className="container py-5">
             <FadeInSectionClient delay={0.1 * idx}>
-              <div className="row gx-0 align-items-center">
-                {/* Texto */}
-                <div className={`col-lg-6 d-flex flex-column justify-content-center ${
-                  isEven ? '' : 'order-lg-2 text-lg-end'
-                }`}>
-                  <div className="content px-4 px-lg-0">
-                    <div className="d-flex align-items-center mb-3 justify-content-">
-                      {isEven && <i className={`${srv.iconClass} fs-1 me-3 text-primary`}></i>}
-                      <h3 className="mb-0">{srv.title}</h3>
-                      {!isEven && <i className={`${srv.iconClass} fs-1 ms-3 text-primary`}></i>}
-                    </div>
-                    <p className="mt-3">{srv.description}</p>
-                  </div>
-                </div>
-
+              <div className="row align-items-center gy-4">
                 {/* Imagen */}
-                <div className={`col-lg-6 d-flex justify-content-center ${
-                  isEven ? '' : 'order-lg-1'
-                }`}>
+                <div
+                  className={`col-lg-6 ${
+                    isEven ? '' : 'order-lg-2'
+                  } d-flex justify-content-center`}
+                >
                   <Image
                     src={srv.img}
                     alt={srv.title}
@@ -105,6 +107,34 @@ export default function ServiciosClient() {
                     className="img-fluid rounded shadow"
                     style={{ objectFit: 'cover' }}
                   />
+                </div>
+
+                {/* Texto */}
+                <div
+                  className={`col-lg-6 d-flex flex-column justify-content-center ${
+                    isEven ? '' : 'order-lg-1 text-lg-end'
+                  }`}
+                >
+                  <FadeInHeadingClient
+                    as="h2"
+                    className={`fw-bold mb-3 ${isEven ? 'text-start' : 'text-end'}`}
+                    style={{ fontSize: '2rem' }}
+                  >
+                    {srv.title}
+                    <span
+                      style={{
+                        display: 'block',
+                        width: '60px',
+                        height: '3px',
+                        background: '#6e4bb7',
+                        margin: isEven ? '8px 0 0 0' : '8px 0 0 auto',
+                        borderRadius: '2px',
+                      }}
+                    />
+                  </FadeInHeadingClient>
+                  <p className={`${isEven ? '' : 'text-lg-end'}`} style={{ fontSize: '1.05rem' }}>
+                    {srv.description}
+                  </p>
                 </div>
               </div>
             </FadeInSectionClient>
