@@ -46,33 +46,35 @@ export async function PUT(request, { params }) {
 }
 
 export async function DELETE(request, context) {
+  // 1️⃣ Obtener params.id correctamente
   const { params } = await context;
   const id = parseInt(params.id, 10);
 
+  // 2️⃣ Autorización
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   if (session.user.role !== 'ADMIN') return NextResponse.json({ error: 'Permiso denegado' }, { status: 403 });
 
   try {
+    // 3️⃣ Verificar existencia y dependencias
     const exists = await prisma.category.findUnique({ where: { id } });
     if (!exists) return NextResponse.json({ error: 'No encontrada' }, { status: 404 });
 
     const propCount = await prisma.property.count({ where: { categoryId: id } });
     if (propCount > 0) {
-      return NextResponse.json({ error: 'No se puede eliminar: existen propiedades asociadas' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'No se puede eliminar: existen propiedades asociadas' },
+        { status: 400 }
+      );
     }
 
+    // 4️⃣ Borrar
     await prisma.category.delete({ where: { id } });
 
-    // ✅ Opción segura: respuesta sin cuerpo (status 204)
-    return new Response(null, { status: 204 });
-
-    // ✅ Alternativa: con json explícito (status 200)
-    // return NextResponse.json({ success: true }, { status: 200 });
-
+    // 5️⃣ Responder 204 sin body
+    return new NextResponse(null, { status: 204 });
   } catch (e) {
     console.error('Error al eliminar categoría:', e);
     return NextResponse.json({ error: 'Error al eliminar categoría' }, { status: 500 });
   }
 }
-
