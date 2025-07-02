@@ -10,12 +10,12 @@ export default function NewPropertyPage() {
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [price, setPrice] = useState('');
+  const [price, setPrice] = useState('');              // guardamos string puro
   const [currency, setCurrency] = useState('ARS');
   const [location, setLocation] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [categories, setCategories] = useState([]);
-  const [images, setImages] = useState([]);
+  const [images, setImages] = useState([]);            // archivos seleccionados
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -40,9 +40,15 @@ export default function NewPropertyPage() {
       return;
     }
 
+    const numericPrice = parseFloat(price.replace(/,/g, ''));
+    if (isNaN(numericPrice)) {
+      setErrorMsg('Precio inválido');
+      return;
+    }
+
     setLoading(true);
     try {
-      // Subir imágenes
+      // 1️⃣ Subir imágenes
       let otherImageUrls = [];
       if (images.length) {
         const formData = new FormData();
@@ -53,14 +59,14 @@ export default function NewPropertyPage() {
         otherImageUrls = uploadJson.urls;
       }
 
-      // Crear propiedad
+      // 2️⃣ Crear propiedad
       const res = await fetch('/api/propiedades', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title,
           description,
-          price: parseFloat(price),
+          price: numericPrice,
           currency,
           location,
           categoryId: parseInt(categoryId, 10),
@@ -85,9 +91,43 @@ export default function NewPropertyPage() {
       <h1 className="mb-4">Nueva Propiedad</h1>
       {errorMsg && <div className="alert alert-danger">{errorMsg}</div>}
       <form onSubmit={handleSubmit} className="mb-4">
-        {/* Campos básicos (título, descripción, ...) */}
+        <div className="mb-3">
+          <label className="form-label">Título *</label>
+          <input
+            type="text"
+            className="form-control"
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            disabled={loading}
+            required
+          />
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label">Descripción *</label>
+          <textarea
+            className="form-control"
+            rows={4}
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            disabled={loading}
+            required
+          />
+        </div>
+
         <div className="row">
-          {/* ...otros campos como antes...*/}
+          <div className="col-md-4 mb-3">
+            <label className="form-label">Precio *</label>
+            <input
+              type="text"
+              className="form-control"
+              value={price}
+              onChange={e => setPrice(e.target.value)}
+              placeholder="Ej. 1,234.56"
+              disabled={loading}
+              required
+            />
+          </div>
           <div className="col-md-4 mb-3">
             <label className="form-label">Moneda *</label>
             <select
@@ -100,8 +140,53 @@ export default function NewPropertyPage() {
               <option value="USD">Dólares (USD)</option>
             </select>
           </div>
+          <div className="col-md-4 mb-3">
+            <label className="form-label">Ubicación *</label>
+            <input
+              type="text"
+              className="form-control"
+              value={location}
+              onChange={e => setLocation(e.target.value)}
+              disabled={loading}
+              required
+            />
+          </div>
         </div>
-        {/* Resto del formulario igual */}
+
+        <div className="mb-3">
+          <label className="form-label">Categoría *</label>
+          <select
+            className="form-select"
+            value={categoryId}
+            onChange={e => setCategoryId(e.target.value)}
+            disabled={loading}
+            required
+          >
+            <option value="">-- Selecciona categoría --</option>
+            {categories.map(cat => (
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label">Imágenes (múltiples)</label>
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            className="form-control"
+            onChange={handleImageChange}
+            disabled={loading}
+          />
+        </div>
+
+        <button type="submit" className="btn btn-primary me-2" disabled={loading}>
+          {loading ? 'Creando...' : 'Guardar'}
+        </button>
+        <button type="button" className="btn btn-outline-secondary" onClick={() => router.back()} disabled={loading}>
+          Cancelar
+        </button>
       </form>
     </div>
   );
